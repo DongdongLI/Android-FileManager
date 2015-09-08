@@ -4,50 +4,40 @@ import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ListActivity {
 
-	private ListView listView;
 	private Button rootBtn;
 	private Button extBtn;
 	private ArrayList<FileItem> files;
-	private ProgressDialog progressDialog;
 	private FileItemAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        listView=(ListView)findViewById(R.id.listView1);
         rootBtn=(Button)findViewById(R.id.rootBtn);
         extBtn=(Button)findViewById(R.id.exitBtn);
-        //files=new ArrayList<FileItem>();
         
-        progressDialog=new ProgressDialog(MainActivity.this);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Loading...");
-        
-        
-        /// test
-        new GetFileAsync().execute("/");
-        /// 
-        
-        
-        
-        
+        fill("/");
         
         
         rootBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				
+				// back to root
+				fill("/");
 			}
 		});
         
@@ -57,9 +47,7 @@ public class MainActivity extends Activity {
 			}
 		});
     }
-	public ProgressDialog getProgressDialog() {
-		return progressDialog;
-	}
+
 	public ArrayList<FileItem> getFiles() {
 		return files;
 	}
@@ -67,43 +55,38 @@ public class MainActivity extends Activity {
 		this.files = files;
 	}
 	
-	
-	
-	class GetFileAsync extends AsyncTask<String, Void, ArrayList<FileItem>>{
+	public void fill(String dir){
+		File start=new File(dir);
+		ArrayList<FileItem> items = new ArrayList<FileItem>();
+		File[] files=start.listFiles();
 		
-		
-		@Override
-		protected ArrayList<FileItem> doInBackground(String... params) {
-			
-			String path=params[0];
-			File start=new File(path);
-			ArrayList<FileItem> items = new ArrayList<FileItem>();
-			File[] files=start.listFiles();
-			
-			for(File f:files){
-				FileItem temp=new FileItem();
-				if(f.isDirectory()){
-					temp.setIsDir(true);
-					temp.setPath(f.getAbsolutePath());
-				}else{
-					temp.setIsDir(false);
-					temp.setPath(f.getAbsolutePath());
-				}
-				items.add(temp);
+		for(File f:files){
+			FileItem temp=new FileItem();
+			if(f.isDirectory()){
+				temp.setIsDir(true);
+				temp.setPath(f.getAbsolutePath());
+			}else{
+				temp.setIsDir(false);
+				temp.setPath(f.getAbsolutePath());
+				temp.setFileName(f.getName());
 			}
-			
-			return items;
+			items.add(temp);
 		}
-
-		@Override
-		protected void onPostExecute(ArrayList<FileItem> result) {
-			getProgressDialog().cancel();
-			setFiles(result);
-			adapter=new FileItemAdapter(getApplicationContext(),R.layout.listitem, files);
-	        listView.setAdapter(adapter);
-	        adapter.setNotifyOnChange(true);
-		}
-
 		
+				adapter=new FileItemAdapter(getApplicationContext(),R.layout.listitem, items);
+				setListAdapter(adapter);
 	}
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		FileItem clicked=adapter.getItem(position);
+		Log.d("demo1","next path: "+clicked.getPath() );
+		Toast.makeText(getApplicationContext(), "next path: "+clicked.getPath(), Toast.LENGTH_SHORT).show();
+		//new GetFileAsync().execute(getFiles().get(position).getPath());
+		fill(clicked.getPath());
+	}
+	
+	
 }
+	
+

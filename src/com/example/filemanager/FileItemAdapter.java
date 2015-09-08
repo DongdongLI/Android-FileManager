@@ -31,8 +31,10 @@ public class FileItemAdapter extends ArrayAdapter<FileItem>{
 		
 		FileItem item=mData.get(position);
 		TextView pathTextView=(TextView)convertView.findViewById(R.id.pathTex);
-		pathTextView.setText(item.getPath());
-		
+		if(item.getFileName()!=null)
+			pathTextView.setText(item.getFileName());
+		else
+			pathTextView.setText(item.getPath());
 		return convertView;
 	}
 	

@@ -3,6 +3,8 @@ package com.example.filemanager;
 public class FileItem {
 	private String path;
 	private Boolean isDir;
+	private String fileName;
+	
 	public String getPath() {
 		return path;
 	}
@@ -21,6 +23,14 @@ public class FileItem {
 		this.isDir = isDir;
 	}
 	
+	
+	
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 	public FileItem(){}
 	@Override
 	public String toString() {
